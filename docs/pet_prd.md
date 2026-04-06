@@ -89,6 +89,17 @@ Pet-ID AI 플랫폼 제품 요구사항 정의서 (PRD)
 * 헤더: 브랜드 로고 및 Contact IR 버튼 배치.
 * 분석 페이지: 정밀 분석 리포트 시각화 차트 및 AI 종합 분석 코멘트 영역.
 
+5.3. B2B / B2G 관리자 여정 (Admin Flow)
+
+* 로그인: 인가된 B2B(병원, 보험사) 및 B2G(지자체) 권한을 지닌 사용자 전용 포털 진입.
+* 대시보드 (Data Table): 소속 환축/고객의 실시간 AI 헬스 모니터링 목록 및 필터링(Pagination 포함) 조회.
+* CRM 연동: 식별된 동물 프로필과 원내 EMR 데이터를 결합한 상세 뷰 제공.
+
+5.4. 예외 처리 정책 (Resilience & Exception Handling)
+
+* 하드웨어 한계 극복: 사용자 카메라 권한 거부 시 브라우저 설정으로 유도하는 안내 그래픽 제공.
+* 네트워크 및 데이터 복원: 캡처된 생체 이미지 품질 저하시 즉각 안내 팝업을 띄워(앱 이탈 방지) 원터치 재촬영(Retake) 유도 및 보행 분석 지연 시 무한 로딩 방지.
+
 
 --------------------------------------------------------------------------------
 
@@ -114,10 +125,12 @@ Pet-ID AI 플랫폼 제품 요구사항 정의서 (PRD)
 
 핵심 아키텍처 원칙 (Senior Architect's Directive)
 
-1. High-level DB Helpers: fetch, update, bulk_fetch 등 Join 및 Filter 기능이 내재된 Django 스타일의 고수준 헬퍼 함수를 구현하여 비즈니스 로직에만 집중.
-2. Security & Auth: 권한 관리가 필요한 모든 로직은 Decorator 기반으로 캡슐화하여 구현 중복 방지.
+1. High-level DB Helpers: fetch, update, bulk_fetch 등 Join 및 Filter 기능이 내재된 Django 스타일의 고수준 헬퍼 함수를 구현하여 비즈니스 로직에만 집중 (모든 조회 시 Soft Delete 레코드 자동 격리).
+2. Security & Auth: 권한 관리가 필요한 모든 로직은 Decorator 기반으로 캡슐화하여 구현 중복 방지 (B2C, B2B_HOSPITAL, B2G 등 Multi-tenant 롤 기반 통제).
 3. Large Media Handling: 생체 인식 및 보행 분석용 대용량 파일은 S3 Presigned URL 방식을 통해 업로드/다운로드하도록 설계.
-4. Clean Code: API 경로에서 /api/v1 등의 불필요한 프리픽스 제거 및 표준화된 응답 구조 준수.
+4. Clean Code: API 경로에서 /api/v1 등의 불필요한 프리픽스 제거 및 Data, Meta, Error가 포함된 표준화된 JSON 응답 구조 확립.
+5. Async & Background Processing: 용량이 큰 AI 보행 분석(비디오) 등은 API Gateway Timeout을 방지하기 위해 AWS SQS와 Worker Lambda를 이용한 비동기 백그라운드 파이프라인으로 처리하고, 완료 시 프론트엔드로 알림 전송.
+6. Data Governance: 회원의 탈퇴/삭제 요청에 대비하여 DB는 원칙 상 Soft Delete(논리 삭제)를 채택하며, 보안이 중요한 생체 데이터는 선별적으로 비식별화(Anonymization) 처리하거나 CASCADE 삭제 구성.
 
 
 --------------------------------------------------------------------------------
