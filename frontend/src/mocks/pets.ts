@@ -153,6 +153,21 @@ export function mockGetPetById(petId: string): Pet | null {
 }
 
 /**
+ * 반려동물 정보 수정 (Mock)
+ * 실제 API 연동 시 PATCH /pets/{pet_id} 으로 교체
+ */
+export function mockUpdatePet(petId: string, data: Partial<Pick<Pet, 'name' | 'birth_date' | 'weight'>>): Pet | null {
+  const allPets = [...MOCK_PETS, ...MOCK_ORG_PETS]
+  const pet = allPets.find(p => p.id === petId)
+  if (!pet) return null
+  if (data.name !== undefined) pet.name = data.name
+  if (data.birth_date !== undefined) pet.birth_date = data.birth_date
+  if (data.weight !== undefined) pet.weight = data.weight
+  pet.updated_at = new Date().toISOString()
+  return pet
+}
+
+/**
  * 신규 반려동물 등록 (Mock)
  * 실제 API 연동 시 POST /pets 으로 교체
  */

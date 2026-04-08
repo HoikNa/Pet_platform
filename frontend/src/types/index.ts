@@ -221,6 +221,101 @@ export interface AdminPetListItem {
 }
 
 // ------------------------------------------------------------
+// 진료 기록 (Medical Records)
+// ------------------------------------------------------------
+
+/** 진료 유형 */
+export type MedicalVisitType = 'CHECK_UP' | 'TREATMENT' | 'SURGERY' | 'EMERGENCY'
+
+/** 진료 이력 */
+export interface MedicalVisit {
+  id: string
+  pet_id: string
+  visit_date: string
+  hospital_name: string
+  vet_name?: string
+  visit_type: MedicalVisitType
+  chief_complaint: string
+  diagnosis: string
+  treatment_notes?: string
+  follow_up_date?: string
+  cost?: number
+  created_at: string
+}
+
+/** 약 처방 이력 */
+export interface Prescription {
+  id: string
+  pet_id: string
+  medical_visit_id?: string
+  prescribed_date: string
+  hospital_name: string
+  vet_name?: string
+  drug_name: string
+  dosage: string
+  frequency: string
+  duration_days: number
+  purpose?: string
+  notes?: string
+  created_at: string
+}
+
+/** 접종 유형 */
+export type VaccinationType = 'CORE' | 'NON_CORE' | 'RABIES'
+
+/** 접종 이력 */
+export interface Vaccination {
+  id: string
+  pet_id: string
+  vaccine_name: string
+  vaccination_type: VaccinationType
+  vaccinated_date: string
+  next_due_date?: string
+  hospital_name: string
+  vet_name?: string
+  batch_number?: string
+  manufacturer?: string
+  created_at: string
+}
+
+/** 의료 기록 요청 */
+export interface CreateMedicalVisitRequest {
+  visit_date: string
+  hospital_name: string
+  vet_name?: string
+  visit_type: MedicalVisitType
+  chief_complaint: string
+  diagnosis: string
+  treatment_notes?: string
+  follow_up_date?: string
+  cost?: number
+}
+
+export interface CreatePrescriptionRequest {
+  medical_visit_id?: string
+  prescribed_date: string
+  hospital_name: string
+  vet_name?: string
+  drug_name: string
+  dosage: string
+  frequency: string
+  duration_days: number
+  purpose?: string
+  notes?: string
+}
+
+export interface CreateVaccinationRequest {
+  vaccine_name: string
+  vaccination_type: VaccinationType
+  vaccinated_date: string
+  next_due_date?: string
+  hospital_name: string
+  vet_name?: string
+  batch_number?: string
+  manufacturer?: string
+}
+
+// ------------------------------------------------------------
 // RFID 토큰 (RFID Tokens)
 // ------------------------------------------------------------
 

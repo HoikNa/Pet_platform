@@ -29,7 +29,22 @@
 *   **필드:** ID(PK, UUID), 반려동물 ID(FK -> Pets), 측정일시, BCS_Score(1~9), 보행 점수(정량화된 추론 수치), 안구 혼탁도 점수, 음성 감정 점수(파형 분석 수치), AI 코멘트, 연관 첨부 파일 경로(S3 URI).
 *   **관계:** Pets 모델과 1:N 관계. Time-series 분석의 핵심 소스. Pets 삭제 시 CASCADE 제거 (데이터 활용 동의 여부에 따라 비식별화 보존 처리).
 
-### 2.6. 기관 및 B2B 연결 (Organizations & Memberships)
+### 2.6. 진료 기록 (Medical_Visits)
+*   **목적:** 반려동물의 동물병원 방문 진료 이력 기록 및 조회.
+*   **필드:** ID(PK, UUID), 반려동물 ID(FK -> Pets), 방문일시, 병원명, 수의사명, 진료 유형(CHECK_UP/TREATMENT/SURGERY/EMERGENCY), 주증상(chief_complaint), 진단명, 처치 내용, 재내원 예정일, 진료비, 생성일, 삭제일(Soft Delete).
+*   **관계:** Pets 모델과 1:N 관계. Pets 삭제 시 CASCADE 처리.
+
+### 2.7. 약 처방 이력 (Prescriptions)
+*   **목적:** 수의사가 처방한 약물 내역 기록 및 투약 이력 추적.
+*   **필드:** ID(PK, UUID), 반려동물 ID(FK -> Pets), 진료 ID(FK -> Medical_Visits, Nullable), 처방일, 병원명, 수의사명, 약품명, 용량, 투여 횟수(frequency), 투여 기간(일수), 처방 목적, 특이사항, 생성일, 삭제일(Soft Delete).
+*   **관계:** Pets 모델과 1:N, Medical_Visits와 선택적 N:1 관계.
+
+### 2.8. 접종 이력 (Vaccinations)
+*   **목적:** 반려동물 예방 접종 이력 및 다음 접종 일정 관리.
+*   **필드:** ID(PK, UUID), 반려동물 ID(FK -> Pets), 백신명, 접종 유형(CORE/NON_CORE/RABIES), 접종일, 다음 접종 예정일, 병원명, 수의사명, 배치번호, 제조사, 생성일, 삭제일(Soft Delete).
+*   **관계:** Pets 모델과 1:N 관계. 다음 접종 예정일 기반 알림 트리거 연동 가능.
+
+### 2.9. 기관 및 B2B 연결 (Organizations & Memberships)
 *   **목적:** B2B 병원 등과 반려인의 연결 기록 관리 (B2B SaaS 및 병원 CRM 지원용).
 *   **필드:** [Organizations] - ID, 기관명, 타입, 연락처. / [Memberships] - 기관 ID, 사용자 ID, 권한 등급.
 

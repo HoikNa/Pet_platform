@@ -6,6 +6,7 @@
       :title="pageTitle"
       :show-back="showBack"
       :show-notification="showNotification"
+      :notification-count="notificationCount"
     />
 
     <!-- 페이지 콘텐츠 영역 -->
@@ -27,12 +28,15 @@ import { computed } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
 import AppHeader from '@/components/common/AppHeader.vue'
 import AppNavigation from '@/components/common/AppNavigation.vue'
+import { useMedicalStore } from '@/stores/medicalStore'
 
 const route = useRoute()
+const medicalStore = useMedicalStore()
 
 const pageTitle = computed(() => route.meta?.title as string | undefined)
 const showBack = computed(() => !!route.meta?.showBack)
 const showNotification = computed(() => route.meta?.showNotification !== false)
+const notificationCount = computed(() => medicalStore.upcomingVaccinationCount)
 
 /** 하단 네비게이션 숨김 처리 (카메라 뷰, 로딩 뷰 등) */
 const showNavigation = computed(() =>

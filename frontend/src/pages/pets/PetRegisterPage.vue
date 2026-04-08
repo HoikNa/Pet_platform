@@ -235,10 +235,26 @@
       </BaseButton>
     </div>
 
-    <!-- Step 3: 완료 -->
-    <div v-show="currentStep === 2" class="flex flex-col items-center gap-5 py-6 animate-fade-in text-center">
-      <div class="w-20 h-20 bg-secondary-100 rounded-full flex items-center justify-center">
-        <span class="text-4xl">🎉</span>
+    <!-- Step 3: 완료 (폭죽 애니메이션) -->
+    <div v-show="currentStep === 2" class="relative flex flex-col items-center gap-5 py-6 animate-fade-in text-center overflow-hidden">
+      <!-- 폭죽 파티클 -->
+      <div class="absolute inset-0 pointer-events-none overflow-hidden">
+        <div
+          v-for="(particle, i) in confettiParticles"
+          :key="i"
+          class="absolute w-3 h-3 rounded-sm animate-confetti"
+          :style="{
+            left: particle.x + '%',
+            top: '-12px',
+            backgroundColor: particle.color,
+            animationDelay: particle.delay + 's',
+            animationDuration: particle.duration + 's',
+          }"
+        />
+      </div>
+
+      <div class="w-24 h-24 bg-secondary-100 rounded-full flex items-center justify-center animate-confetti-pop">
+        <span class="text-5xl">🎉</span>
       </div>
       <div>
         <h2 class="text-2xl font-black text-slate-900 mb-2">등록 완료!</h2>
@@ -257,6 +273,9 @@
         </div>
       </div>
 
+      <!-- 자동 이동 카운트다운 -->
+      <p class="text-xs text-slate-400">{{ countdown }}초 후 대시보드로 이동합니다...</p>
+
       <BaseButton fullWidth size="lg" @click="router.push('/dashboard')">
         메인 대시보드로 이동
       </BaseButton>
@@ -265,7 +284,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { usePetStore } from '@/stores/petStore'
 import { useCamera } from '@/composables/useCamera'
@@ -286,6 +305,32 @@ const videoEl = ref<HTMLVideoElement | null>(null)
 const cameraActive = ref(false)
 const isRegistering = ref(false)
 const createdPet = ref<Pet | null>(null)
+const countdown = ref(5)
+let countdownTimer: ReturnType<typeof setInterval> | null = null
+
+// 폭죽 파티클 데이터 생성
+const confettiColors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899']
+const confettiParticles = Array.from({ length: 20 }, () => ({
+  x: Math.random() * 100,
+  color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
+  delay: Math.random() * 0.8,
+  duration: 1.2 + Math.random() * 0.8,
+}))
+
+function startCountdown(): void {
+  countdown.value = 5
+  countdownTimer = setInterval(() => {
+    countdown.value--
+    if (countdown.value <= 0) {
+      if (countdownTimer) clearInterval(countdownTimer)
+      router.push('/dashboard')
+    }
+  }, 1000)
+}
+
+onUnmounted(() => {
+  if (countdownTimer) clearInterval(countdownTimer)
+})
 
 const steps = [
   { label: '기본 정보' },
@@ -370,8 +415,10 @@ async function captureAndRegister(): Promise<void> {
       weight: weightStr.value ? parseFloat(weightStr.value) : undefined,
     })
 
-    // Mock: 생체 인식 완료 처리
+    // Mock: POST /pets/{pet_id}/biometrics — 생체 인식 데이터 업로드 및 처리
+    // 실제 API: await biometricService.uploadBiometric(pet.id, capturedBlob)
     await new Promise(resolve => setTimeout(resolve, 1500))
+    // Mock: AI 품질 검사 통과 시 VERIFIED 처리
     petStore.markPetAsVerified(pet.id)
     pet.registration_status = 'VERIFIED'
 
@@ -379,6 +426,7 @@ async function captureAndRegister(): Promise<void> {
     camera.stopCamera()
     currentStep.value = 2
     success('등록 완료!', `${pet.name}의 생체 인식 등록이 완료되었습니다 🎉`)
+    startCountdown()
   } catch (err) {
     toastError('등록 실패', '다시 시도해 주세요')
   } finally {
@@ -397,6 +445,7 @@ async function skipBiometric(): Promise<void> {
     camera.stopCamera()
     currentStep.value = 2
     success('등록 완료', `${pet.name}의 기본 정보가 등록되었습니다`)
+    startCountdown()
   } finally {
     isRegistering.value = false
   }

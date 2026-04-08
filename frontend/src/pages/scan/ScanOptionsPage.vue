@@ -180,7 +180,9 @@ function startScan(): void {
   if (!selectedPetId.value || selectedScanTypes.value.length === 0) return
   petStore.selectPet(selectedPetId.value)
   scanStore.startSession(selectedPetId.value, selectedScanTypes.value)
-  router.push('/scan/camera')
+  // VOICE 전용 스캔이면 음성 녹음 페이지로, 그 외는 카메라 페이지로
+  const isVoiceOnly = selectedScanTypes.value.length === 1 && selectedScanTypes.value[0] === 'VOICE'
+  router.push(isVoiceOnly ? '/scan/voice' : '/scan/camera')
 }
 
 onMounted(async () => {

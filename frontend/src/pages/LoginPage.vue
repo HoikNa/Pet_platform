@@ -94,19 +94,45 @@
       </RouterLink>
     </div>
   </div>
+
+  <!-- 신규 유저 반려동물 등록 유도 모달 -->
+  <BaseModal v-model="showNewUserModal" title="" :show-close="false" :close-on-overlay="false" size="sm">
+    <div class="text-center py-2">
+      <div class="w-16 h-16 bg-primary-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+        <span class="text-4xl">🐾</span>
+      </div>
+      <h3 class="text-lg font-black text-slate-900 mb-2">반려동물을 등록해 보세요!</h3>
+      <p class="text-sm text-slate-500 leading-relaxed mb-6">
+        AI 생체 인식으로 반려동물의 디지털 신분증을 발급하고<br />
+        무료 건강 리포트를 받아보세요.
+      </p>
+      <div class="flex flex-col gap-2">
+        <BaseButton fullWidth size="md" @click="goToRegister">
+          지금 등록하기
+        </BaseButton>
+        <BaseButton variant="ghost" fullWidth size="md" @click="goToDashboard">
+          나중에 할게요
+        </BaseButton>
+      </div>
+    </div>
+  </BaseModal>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
+import { usePetStore } from '@/stores/petStore'
 import { useToast } from '@/composables/useToast'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
+import BaseModal from '@/components/ui/BaseModal.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const petStore = usePetStore()
 const { success } = useToast()
+const showNewUserModal = ref(false)
 
 const email = ref('demo@petid.kr')
 const password = ref('demo1234')
@@ -157,11 +183,27 @@ async function handleKakaoLogin(): Promise<void> {
   redirectAfterLogin()
 }
 
-function redirectAfterLogin(): void {
+async function redirectAfterLogin(): Promise<void> {
   if (authStore.isAdmin) {
     router.push('/admin/dashboard')
+    return
+  }
+  // B2C 신규 유저 감지: 반려동물 목록 로드 후 없으면 등록 유도 팝업
+  await petStore.fetchPets()
+  if (petStore.pets.length === 0) {
+    showNewUserModal.value = true
   } else {
     router.push('/dashboard')
   }
+}
+
+function goToRegister(): void {
+  showNewUserModal.value = false
+  router.push('/pets/register')
+}
+
+function goToDashboard(): void {
+  showNewUserModal.value = false
+  router.push('/dashboard')
 }
 </script>

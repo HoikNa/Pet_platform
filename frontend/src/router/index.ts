@@ -87,6 +87,17 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/scan/voice',
+    name: 'ScanVoice',
+    component: () => import('@/pages/scan/ScanVoicePage.vue'),
+    meta: {
+      requiresAuth: true,
+      requiredRoles: ['B2C'],
+      layout: 'none', // 전체 화면 녹음
+      hideNavigation: true,
+    },
+  },
+  {
     path: '/scan/loading',
     name: 'ScanLoading',
     component: () => import('@/pages/scan/ScanLoadingPage.vue'),
@@ -98,7 +109,7 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
-    path: '/scans/:id',
+    path: '/scan/report/:id',
     name: 'ScanReport',
     component: () => import('@/pages/scan/ScanReportPage.vue'),
     meta: {
@@ -110,19 +121,19 @@ const routes: RouteRecordRaw[] = [
     },
   },
 
-  // 리포트 목록 (대시보드 재활용)
+  // 리포트 목록
   {
     path: '/reports',
     name: 'Reports',
-    component: () => import('@/pages/DashboardPage.vue'),
-    meta: { requiresAuth: true, requiredRoles: ['B2C'], layout: 'mobile', title: '리포트' },
+    component: () => import('@/pages/ReportsPage.vue'),
+    meta: { requiresAuth: true, requiredRoles: ['B2C'], layout: 'mobile', title: '스캔 기록' },
   },
 
   // 프로필
   {
     path: '/profile',
     name: 'Profile',
-    component: () => import('@/pages/DashboardPage.vue'), // TODO: ProfilePage
+    component: () => import('@/pages/ProfilePage.vue'),
     meta: { requiresAuth: true, requiredRoles: ['B2C'], layout: 'mobile', title: '프로필' },
   },
 

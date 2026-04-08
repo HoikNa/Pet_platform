@@ -80,17 +80,35 @@
         <table class="min-w-full text-sm">
           <thead class="bg-slate-50 border-b border-slate-100">
             <tr>
-              <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-500">동물 정보</th>
-              <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-500">보호자</th>
-              <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-500">등록 상태</th>
-              <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-500">최신 BCS</th>
-              <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-500">마지막 스캔</th>
-              <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-500">작업</th>
+              <th
+                v-for="col in sortableColumns"
+                :key="col.label"
+                class="px-5 py-3.5 text-left text-xs font-semibold text-slate-500 select-none"
+                :class="col.sortable ? 'cursor-pointer hover:text-slate-700 hover:bg-slate-100 transition-colors' : ''"
+                @click="col.sortable ? toggleSort(col.key) : undefined"
+              >
+                <div class="flex items-center gap-1">
+                  {{ col.label }}
+                  <template v-if="col.sortable">
+                    <svg
+                      v-if="sortColumn === col.key"
+                      class="w-3.5 h-3.5 text-primary-500"
+                      fill="currentColor" viewBox="0 0 20 20"
+                    >
+                      <path v-if="sortDir === 'asc'" d="M5 10l5-5 5 5H5z" />
+                      <path v-else d="M15 10l-5 5-5-5h10z" />
+                    </svg>
+                    <svg v-else class="w-3.5 h-3.5 text-slate-300" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M5 8l5-5 5 5H5zm0 4l5 5 5-5H5z" />
+                    </svg>
+                  </template>
+                </div>
+              </th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
             <tr
-              v-for="item in adminStore.pagedList"
+              v-for="item in sortedPagedList"
               :key="item.pet.id"
               class="hover:bg-primary-50 cursor-pointer transition-colors"
               @click="handleRowClick(item)"
@@ -161,8 +179,8 @@
         class="px-5 py-4 border-t border-slate-100 flex items-center justify-between"
       >
         <p class="text-xs text-slate-500">
-          {{ adminStore.filteredList.length }}건 중
-          {{ (adminStore.currentPage - 1) * adminStore.pageLimit + 1 }}~{{ Math.min(adminStore.currentPage * adminStore.pageLimit, adminStore.filteredList.length) }}건 표시
+          {{ sortedList.length }}건 중
+          {{ (adminStore.currentPage - 1) * adminStore.pageLimit + 1 }}~{{ Math.min(adminStore.currentPage * adminStore.pageLimit, sortedList.length) }}건 표시
         </p>
 
         <div class="flex items-center gap-1">
@@ -203,8 +221,75 @@ const router = useRouter()
 const adminStore = useAdminStore()
 const searchInput = ref('')
 
+// ---- 정렬 상태 ----
+type SortColumn = 'name' | 'owner' | 'status' | 'bcs' | 'scan_date'
+const sortColumn = ref<SortColumn | null>(null)
+const sortDir = ref<'asc' | 'desc'>('asc')
+
+const sortableColumns: { key: SortColumn | null; label: string; sortable: boolean }[] = [
+  { key: 'name', label: '동물 정보', sortable: true },
+  { key: 'owner', label: '보호자', sortable: true },
+  { key: 'status', label: '등록 상태', sortable: true },
+  { key: 'bcs', label: '최신 BCS', sortable: true },
+  { key: 'scan_date', label: '마지막 스캔', sortable: true },
+  { key: null, label: '작업', sortable: false },
+]
+
+function toggleSort(col: SortColumn | null): void {
+  if (!col) return
+  if (sortColumn.value === col) {
+    sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc'
+  } else {
+    sortColumn.value = col
+    sortDir.value = 'asc'
+  }
+  adminStore.setPage(1)
+}
+
+const sortedList = computed<AdminPetListItem[]>(() => {
+  const list = [...adminStore.filteredList]
+  if (!sortColumn.value) return list
+
+  return list.sort((a, b) => {
+    let aVal: string | number = ''
+    let bVal: string | number = ''
+
+    switch (sortColumn.value) {
+      case 'name':
+        aVal = a.pet.name
+        bVal = b.pet.name
+        break
+      case 'owner':
+        aVal = a.owner.name
+        bVal = b.owner.name
+        break
+      case 'status':
+        aVal = a.pet.registration_status
+        bVal = b.pet.registration_status
+        break
+      case 'bcs':
+        aVal = a.latest_scan?.bcs_score ?? -1
+        bVal = b.latest_scan?.bcs_score ?? -1
+        break
+      case 'scan_date':
+        aVal = a.latest_scan?.scan_date ?? ''
+        bVal = b.latest_scan?.scan_date ?? ''
+        break
+    }
+
+    if (aVal < bVal) return sortDir.value === 'asc' ? -1 : 1
+    if (aVal > bVal) return sortDir.value === 'asc' ? 1 : -1
+    return 0
+  })
+})
+
+const sortedPagedList = computed<AdminPetListItem[]>(() => {
+  const start = (adminStore.currentPage - 1) * adminStore.pageLimit
+  return sortedList.value.slice(start, start + adminStore.pageLimit)
+})
+
 const totalPages = computed(() =>
-  Math.ceil(adminStore.filteredList.length / adminStore.pageLimit)
+  Math.ceil(sortedList.value.length / adminStore.pageLimit)
 )
 
 const statusFilters = [

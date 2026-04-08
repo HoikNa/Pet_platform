@@ -67,6 +67,24 @@
           </div>
         </div>
 
+        <!-- 품질 에러 Retake 배너 (BIO_001 / BIO_002) -->
+        <div v-if="qualityError" class="absolute top-16 left-4 right-4 flex flex-col items-center gap-2">
+          <div class="w-full flex items-center justify-between gap-3 bg-error-600/95 px-4 py-3 rounded-2xl">
+            <div class="flex items-center gap-2">
+              <svg class="w-4 h-4 text-white shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+              </svg>
+              <p class="text-white text-xs font-semibold">{{ qualityError }}</p>
+            </div>
+            <button
+              class="shrink-0 bg-white text-error-600 text-xs font-bold px-3 py-1.5 rounded-xl"
+              @click="retakeVideo"
+            >
+              재촬영
+            </button>
+          </div>
+        </div>
+
         <!-- 안내 텍스트 -->
         <div class="absolute bottom-8 left-0 right-0 flex flex-col items-center gap-2">
           <p class="text-white text-sm bg-black/50 px-4 py-2 rounded-full">
@@ -151,6 +169,7 @@ const petStore = usePetStore()
 const videoEl = ref<HTMLVideoElement | null>(null)
 const isProcessing = ref(false)
 const recordingTime = ref(0)
+const qualityError = ref<string | null>(null)
 let recordingTimer: ReturnType<typeof setInterval> | null = null
 
 const scanSession = computed(() => scanStore.currentSession)
@@ -180,14 +199,28 @@ async function toggleRecording(): Promise<void> {
     // 녹화 중지
     if (recordingTimer) clearInterval(recordingTimer)
     const blob = await camera.stopRecording()
+
+    // 최소 녹화 시간 체크 (4초 미만이면 품질 에러)
+    if (recordingTime.value < 4) {
+      qualityError.value = '흔들림이 감지되었습니다. 4초 이상 안정적으로 촬영해 주세요.'
+      return
+    }
+
+    qualityError.value = null
     scanStore.setCapturedBlob(blob)
     await proceedToUpload()
   } else {
     // 녹화 시작
+    qualityError.value = null
     camera.startRecording()
     recordingTime.value = 0
     recordingTimer = setInterval(() => recordingTime.value++, 1000)
   }
+}
+
+function retakeVideo(): void {
+  qualityError.value = null
+  recordingTime.value = 0
 }
 
 async function proceedToUpload(): Promise<void> {

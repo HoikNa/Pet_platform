@@ -60,15 +60,15 @@
       </div>
     </section>
 
-    <!-- 탭 네비게이션 (Vision / Solution / Growth) -->
+    <!-- 탭 네비게이션 (Vision / Solution / Growth / Market / Biz) -->
     <section class="max-w-mobile mx-auto">
-      <!-- 탭 헤더 -->
-      <div class="flex border-b border-slate-200 bg-white sticky top-0 z-10">
+      <!-- 탭 헤더 (스크롤 가능) -->
+      <div class="flex border-b border-slate-200 bg-white sticky top-0 z-10 overflow-x-auto scrollbar-none">
         <button
           v-for="tab in tabs"
           :key="tab.id"
           :class="[
-            'flex-1 py-3.5 text-sm font-semibold transition-colors border-b-2',
+            'shrink-0 px-4 py-3.5 text-sm font-semibold transition-colors border-b-2 whitespace-nowrap',
             activeTab === tab.id
               ? 'border-primary-600 text-primary-700'
               : 'border-transparent text-slate-500 hover:text-slate-700',
@@ -137,7 +137,7 @@
         </div>
       </div>
 
-      <!-- Growth Strategy 탭 -->
+      <!-- Growth Strategy 탭 (Growth) -->
       <div v-show="activeTab === 'growth'" class="px-6 py-8">
         <h2 class="text-2xl font-black text-slate-900 mb-2">성장 전략</h2>
         <p class="text-slate-500 text-sm mb-8">2단계 로드맵으로 시장을 선도합니다</p>
@@ -175,6 +175,72 @@
           </BaseButton>
         </div>
       </div>
+
+      <!-- Market & Data 탭 -->
+      <div v-show="activeTab === 'market'" class="px-6 py-8">
+        <h2 class="text-2xl font-black text-slate-900 mb-2">시장 & 데이터</h2>
+        <p class="text-slate-500 text-sm mb-8">한국 펫 시장의 정보 비대칭을 해소하는 핵심 데이터</p>
+
+        <!-- 경쟁 우위 카드 -->
+        <div class="flex flex-col gap-5">
+          <div
+            v-for="adv in competitiveAdvantages"
+            :key="adv.title"
+            class="p-5 bg-white rounded-2xl border border-slate-200 shadow-sm"
+          >
+            <div class="flex items-start gap-3 mb-2">
+              <div class="w-8 h-8 rounded-lg bg-primary-100 flex items-center justify-center shrink-0">
+                <span class="text-primary-700 font-black text-sm">{{ adv.num }}</span>
+              </div>
+              <h3 class="font-bold text-slate-900 text-sm leading-snug">{{ adv.title }}</h3>
+            </div>
+            <p class="text-xs text-slate-600 leading-relaxed pl-11">{{ adv.desc }}</p>
+          </div>
+        </div>
+
+        <!-- 시장 통계 -->
+        <div class="mt-8 grid grid-cols-2 gap-3">
+          <div
+            v-for="stat in marketStats"
+            :key="stat.label"
+            class="p-4 bg-primary-50 rounded-2xl border border-primary-100 text-center"
+          >
+            <p class="text-2xl font-black text-primary-700 mb-1">{{ stat.value }}</p>
+            <p class="text-[11px] text-primary-500 leading-snug">{{ stat.label }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Business Model 탭 -->
+      <div v-show="activeTab === 'biz'" class="px-6 py-8">
+        <h2 class="text-2xl font-black text-slate-900 mb-2">비즈니스 모델</h2>
+        <p class="text-slate-500 text-sm mb-8">다층적 수익 구조로 지속 가능한 생태계를 구축합니다</p>
+
+        <div class="flex flex-col gap-4">
+          <div
+            v-for="biz in bizModels"
+            :key="biz.type"
+            class="p-5 bg-white rounded-2xl border border-slate-200 shadow-sm"
+          >
+            <div class="flex items-center gap-3 mb-3">
+              <div :class="['px-2.5 py-1 rounded-lg text-xs font-black', biz.badgeClass]">{{ biz.type }}</div>
+              <span class="text-base">{{ biz.emoji }}</span>
+            </div>
+            <h3 class="font-bold text-slate-900 mb-1.5">{{ biz.title }}</h3>
+            <p class="text-xs text-slate-600 leading-relaxed">{{ biz.desc }}</p>
+          </div>
+        </div>
+
+        <!-- Contact IR -->
+        <div class="mt-8 p-5 bg-gradient-to-br from-primary-900 to-primary-700 rounded-2xl text-white text-center">
+          <p class="text-sm text-primary-300 mb-1">투자자 및 파트너사를 위한</p>
+          <h3 class="font-bold text-xl mb-3">Contact IR</h3>
+          <p class="text-xs text-primary-300 mb-5">보험사, 동물병원, 지자체, 투자자 관계자는<br />아래 버튼으로 미팅을 요청해 주세요</p>
+          <BaseButton color="secondary" size="md">
+            IR 미팅 요청하기
+          </BaseButton>
+        </div>
+      </div>
     </section>
 
     <!-- 하단 여백 -->
@@ -188,12 +254,14 @@ import { RouterLink } from 'vue-router'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseBadge from '@/components/ui/BaseBadge.vue'
 
-const activeTab = ref<'vision' | 'solution' | 'growth'>('vision')
+const activeTab = ref<'vision' | 'solution' | 'growth' | 'market' | 'biz'>('vision')
 
 const tabs = [
   { id: 'vision' as const, label: 'Vision' },
   { id: 'solution' as const, label: 'Solution' },
   { id: 'growth' as const, label: 'Growth' },
+  { id: 'market' as const, label: 'Market & Data' },
+  { id: 'biz' as const, label: 'Business Model' },
 ]
 
 const keyStats = [
@@ -250,6 +318,67 @@ const solutions = [
     badge: 'Gait AI',
     badgeColor: 'warning' as const,
     iconBg: 'bg-warning-50',
+  },
+]
+
+const competitiveAdvantages = [
+  {
+    num: '①',
+    title: '정부 공인 지위 (The Gatekeeper)',
+    desc: '정부 공인 등록 사업자로서 시장 진입의 독점적 지위 확보. 법적 효력을 갖춘 디지털 등록 대행 서비스로 실증 완료.',
+  },
+  {
+    num: '②',
+    title: '독점적 로컬 데이터 (Technological Moat)',
+    desc: "글로벌 빅테크가 보유하지 못한 '한국 특화 품종(말티즈, 푸들 등)'의 비만/노화 학습 데이터 독점 보유.",
+  },
+  {
+    num: '③',
+    title: '컴플라이언스 체계 (Regulatory Advantage)',
+    desc: '2026 AI 기본법 및 국가 표준(KS)에 최적화된 국내 유일의 컴플라이언스 체계 구축.',
+  },
+  {
+    num: '④',
+    title: '시장 잠재력 (Untapped Market)',
+    desc: '현재 1% 미만인 국내 펫 보험 가입률을 선진국 수준(20~40%)으로 견인할 수 있는 핵심 동력 보유.',
+  },
+]
+
+const marketStats = [
+  { value: '1%', label: '현재 펫보험 가입률\n(선진국 20~40%)' },
+  { value: '9.9조', label: '정부 AI 국가 전략\n투자 규모' },
+  { value: '30%', label: '2028 국내 등록\n시장 점유율 목표' },
+  { value: '20%↓', label: '보험 손해율\n절감 목표' },
+]
+
+const bizModels = [
+  {
+    type: 'B2B',
+    emoji: '🏢',
+    title: '보험사/제약사 위험 분석',
+    desc: '보험사 및 제약사 대상 위험 분석 리포트 판매 및 보험 가입/청구 연동 성공 수수료(Success Fee) 기반.',
+    badgeClass: 'bg-primary-100 text-primary-700',
+  },
+  {
+    type: 'B2B SaaS',
+    emoji: '🏥',
+    title: '동물병원 CRM & AI 진료 툴',
+    desc: '동물병원용 AI 진료 보조 툴 및 CRM 솔루션 월간 구독 (MRR 모델). EMR 연동으로 고객 재방문 유도.',
+    badgeClass: 'bg-secondary-100 text-secondary-700',
+  },
+  {
+    type: 'B2G',
+    emoji: '🏛️',
+    title: '지자체 등록 대행 수수료',
+    desc: '지자체 동물등록 대행 수수료 및 유기 동물 방지 시스템 운영비. 행정 효율화와 등록률 제고에 기여.',
+    badgeClass: 'bg-warning-100 text-warning-700',
+  },
+  {
+    type: 'B2C',
+    emoji: '🐾',
+    title: '프리미엄 리포트 & 커머스',
+    desc: '프리미엄 건강 분석 리포트 결제 및 맞춤형 커머스 큐레이션 중개 수수료.',
+    badgeClass: 'bg-slate-100 text-slate-700',
   },
 ]
 

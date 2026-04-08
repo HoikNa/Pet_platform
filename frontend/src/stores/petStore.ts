@@ -5,8 +5,8 @@
 
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { Pet, CreatePetRequest } from '@/types'
-import { mockGetPetsByOwner, mockGetPetById, mockCreatePet } from '@/mocks/pets'
+import type { Pet, CreatePetRequest, UpdatePetRequest } from '@/types'
+import { mockGetPetsByOwner, mockGetPetById, mockCreatePet, mockUpdatePet } from '@/mocks/pets'
 import { useAuthStore } from './authStore'
 
 export const usePetStore = defineStore('pet', () => {
@@ -87,6 +87,25 @@ export const usePetStore = defineStore('pet', () => {
   }
 
   /**
+   * 반려동물 기본 정보 수정 (이름, 생년월일, 체중)
+   * 실제 API 연동 시 PATCH /pets/{pet_id} 으로 교체
+   */
+  async function updatePet(petId: string, data: UpdatePetRequest): Promise<Pet | null> {
+    isLoading.value = true
+    try {
+      await new Promise(resolve => setTimeout(resolve, 400))
+      const updated = mockUpdatePet(petId, data)
+      if (updated) {
+        const idx = pets.value.findIndex(p => p.id === petId)
+        if (idx !== -1) pets.value[idx] = { ...pets.value[idx], ...data }
+      }
+      return updated
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  /**
    * 현재 선택 반려동물 설정
    */
   function selectPet(petId: string | null): void {
@@ -121,6 +140,7 @@ export const usePetStore = defineStore('pet', () => {
     fetchPets,
     fetchPetById,
     createPet,
+    updatePet,
     selectPet,
     markPetAsVerified,
     reset,
