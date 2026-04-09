@@ -1,6 +1,5 @@
 <template>
-  <MobileLayout>
-    <div class="flex flex-col gap-4 pb-6">
+  <div class="flex flex-col gap-4 pb-6">
       <!-- 헤더 -->
       <div class="px-4 pt-4">
         <h1 class="text-xl font-bold text-slate-800">스캔 기록</h1>
@@ -120,7 +119,6 @@
         </div>
       </div>
     </div>
-  </MobileLayout>
 </template>
 
 <script setup lang="ts">
@@ -129,7 +127,6 @@ import { useRouter } from 'vue-router'
 import { usePetStore } from '@/stores/petStore'
 import { mockGetScansByPetId } from '@/mocks/scans'
 import type { HealthScan, Pet, BCSScore } from '@/types'
-import MobileLayout from '@/layouts/MobileLayout.vue'
 
 const router = useRouter()
 const petStore = usePetStore()
@@ -140,7 +137,7 @@ const selectedPetId = ref<string | null>(null)
 const allScans = ref<HealthScan[]>([])
 
 onMounted(async () => {
-  await petStore.fetchPets()
+  if (petStore.pets.length === 0) await petStore.fetchPets()
   allScans.value = pets.value.flatMap(pet => mockGetScansByPetId(pet.id))
     .sort((a, b) => new Date(b.scan_date).getTime() - new Date(a.scan_date).getTime())
 })

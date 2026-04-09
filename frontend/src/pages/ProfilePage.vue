@@ -1,6 +1,5 @@
 <template>
-  <MobileLayout>
-    <div class="flex flex-col gap-6 pb-6">
+  <div class="flex flex-col gap-6 pb-6">
       <!-- 프로필 헤더 -->
       <div class="flex flex-col items-center gap-3 pt-4">
         <div class="w-20 h-20 rounded-full bg-primary-100 flex items-center justify-center overflow-hidden">
@@ -140,7 +139,6 @@
         <BaseButton @click="showPrivacy = false">확인</BaseButton>
       </template>
     </BaseModal>
-  </MobileLayout>
 </template>
 
 <script setup lang="ts">
@@ -148,7 +146,6 @@ import { ref, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
 import { usePetStore } from '@/stores/petStore'
-import MobileLayout from '@/layouts/MobileLayout.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseModal from '@/components/ui/BaseModal.vue'

@@ -68,7 +68,7 @@ export const useMedicalStore = defineStore('medical', () => {
     }
     isLoading.value = true
     try {
-      await new Promise(resolve => setTimeout(resolve, 400))
+      await new Promise(resolve => setTimeout(resolve, 0))
       visitsCache.value.set(petId, mockGetMedicalVisitsByPetId(petId))
       prescriptionsCache.value.set(petId, mockGetPrescriptionsByPetId(petId))
       vaccinationsCache.value.set(petId, mockGetVaccinationsByPetId(petId))
@@ -83,7 +83,7 @@ export const useMedicalStore = defineStore('medical', () => {
    * 실제 API 연동 시 POST /pets/{pet_id}/medical-visits 로 교체
    */
   async function addVisit(petId: string, data: CreateMedicalVisitRequest): Promise<MedicalVisit> {
-    await new Promise(resolve => setTimeout(resolve, 400))
+    await new Promise(resolve => setTimeout(resolve, 0))
     const newVisit: MedicalVisit = {
       id: `visit-${Date.now()}`,
       pet_id: petId,
@@ -100,7 +100,7 @@ export const useMedicalStore = defineStore('medical', () => {
    * 실제 API 연동 시 POST /pets/{pet_id}/prescriptions 로 교체
    */
   async function addPrescription(petId: string, data: CreatePrescriptionRequest): Promise<Prescription> {
-    await new Promise(resolve => setTimeout(resolve, 400))
+    await new Promise(resolve => setTimeout(resolve, 0))
     const newRx: Prescription = {
       id: `rx-${Date.now()}`,
       pet_id: petId,
@@ -117,7 +117,7 @@ export const useMedicalStore = defineStore('medical', () => {
    * 실제 API 연동 시 POST /pets/{pet_id}/vaccinations 로 교체
    */
   async function addVaccination(petId: string, data: CreateVaccinationRequest): Promise<Vaccination> {
-    await new Promise(resolve => setTimeout(resolve, 400))
+    await new Promise(resolve => setTimeout(resolve, 0))
     const newVac: Vaccination = {
       id: `vac-${Date.now()}`,
       pet_id: petId,

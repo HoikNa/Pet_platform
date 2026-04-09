@@ -39,7 +39,7 @@ export const useScanStore = defineStore('scan', () => {
 
     isLoading.value = true
     try {
-      await new Promise(resolve => setTimeout(resolve, 500))
+      await new Promise(resolve => setTimeout(resolve, 0))
       const scans = mockGetScansByPetId(petId)
       scanCache.value.set(petId, scans)
       return scans
@@ -55,7 +55,7 @@ export const useScanStore = defineStore('scan', () => {
   async function fetchScanById(scanId: string): Promise<HealthScan | null> {
     isLoading.value = true
     try {
-      await new Promise(resolve => setTimeout(resolve, 300))
+      await new Promise(resolve => setTimeout(resolve, 0))
       const scan = mockGetScanById(scanId)
       currentScan.value = scan
       return scan

@@ -85,13 +85,13 @@
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- 하단 링크 -->
-    <div class="mt-6 text-center">
-      <RouterLink to="/" class="text-sm text-primary-300 hover:text-white transition-colors">
-        ← 랜딩 페이지로 돌아가기
-      </RouterLink>
+      <!-- 랜딩 페이지 링크 -->
+      <div class="mt-5 text-center">
+        <RouterLink to="/landing" class="text-xs text-slate-400 hover:text-slate-600 transition-colors">
+          ← 랜딩 페이지로 돌아가기
+        </RouterLink>
+      </div>
     </div>
   </div>
 
@@ -141,8 +141,9 @@ const errors = reactive({ email: '', password: '' })
 
 const demoAccounts = [
   { label: 'B2C 반려인', email: 'demo@petid.kr', password: 'demo1234' },
-  { label: 'B2B 병원 관리자', email: 'hospital@petid.kr', password: 'hospital1234' },
-  { label: 'B2G 지자체 관리자', email: 'gov@petid.kr', password: 'gov1234' },
+  { label: '동물병원 관리자', email: 'hospital@petid.kr', password: 'hospital1234' },
+  { label: '보험사 관리자', email: 'insurance@petid.kr', password: 'insurance1234' },
+  { label: '지자체 관리자', email: 'gov@petid.kr', password: 'gov1234' },
 ]
 
 function fillDemo(e: string, p: string): void {
@@ -184,7 +185,20 @@ async function handleKakaoLogin(): Promise<void> {
 }
 
 async function redirectAfterLogin(): Promise<void> {
-  if (authStore.isAdmin) {
+  const role = authStore.userRole
+  if (role === 'B2B_HOSPITAL') {
+    router.push('/admin/hospital/dashboard')
+    return
+  }
+  if (role === 'B2B_INSURANCE') {
+    router.push('/admin/insurance/dashboard')
+    return
+  }
+  if (role === 'B2G') {
+    router.push('/admin/gov/dashboard')
+    return
+  }
+  if (role === 'ADMIN') {
     router.push('/admin/dashboard')
     return
   }

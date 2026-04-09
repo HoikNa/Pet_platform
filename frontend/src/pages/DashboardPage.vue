@@ -29,6 +29,32 @@
 
     <!-- 콘텐츠 영역 (카드 오버랩) -->
     <div class="-mt-6 bg-slate-50 rounded-t-3xl px-4 pt-6 flex flex-col gap-6">
+
+      <!-- 건강 알림 요약 배너 -->
+      <section v-if="totalAlerts.urgent > 0 || totalAlerts.warning > 0">
+        <div
+          :class="[
+            'rounded-2xl p-4 border flex items-start gap-3',
+            totalAlerts.urgent > 0
+              ? 'bg-red-50 border-red-200'
+              : 'bg-amber-50 border-amber-200'
+          ]"
+        >
+          <span class="text-2xl shrink-0">{{ totalAlerts.urgent > 0 ? '🚨' : '⚠️' }}</span>
+          <div class="flex-1 min-w-0">
+            <p :class="['font-bold text-sm mb-0.5', totalAlerts.urgent > 0 ? 'text-red-800' : 'text-amber-800']">
+              건강 관리가 필요한 사항이 있어요
+            </p>
+            <p :class="['text-xs', totalAlerts.urgent > 0 ? 'text-red-600' : 'text-amber-600']">
+              <span v-if="totalAlerts.urgent > 0">긴급 {{ totalAlerts.urgent }}건</span>
+              <span v-if="totalAlerts.urgent > 0 && totalAlerts.warning > 0"> · </span>
+              <span v-if="totalAlerts.warning > 0">주의 {{ totalAlerts.warning }}건</span>
+              — 반려동물 카드를 확인해 주세요
+            </p>
+          </div>
+        </div>
+      </section>
+
       <!-- 내 반려동물 목록 -->
       <section>
         <div class="flex items-center justify-between mb-4">
@@ -65,8 +91,51 @@
             :key="pet.id"
             :pet="pet"
             :latest-scan="latestScans[pet.id]"
+            :vaccinations="petVaccinations[pet.id] ?? []"
+            :medical-visits="petMedicalVisits[pet.id] ?? []"
             @click="goToPetDetail"
           />
+        </div>
+      </section>
+
+      <!-- 접종 일정 요약 -->
+      <section v-if="upcomingVaccinations.length > 0">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-base font-bold text-slate-900">💉 접종 일정</h3>
+        </div>
+        <div class="flex flex-col gap-2">
+          <div
+            v-for="item in upcomingVaccinations"
+            :key="item.vac.id"
+            :class="[
+              'rounded-xl p-3 border flex items-center gap-3',
+              item.daysLeft < 0
+                ? 'bg-red-50 border-red-200'
+                : item.daysLeft <= 14
+                  ? 'bg-red-50 border-red-200'
+                  : 'bg-amber-50 border-amber-200',
+            ]"
+          >
+            <div :class="[
+              'w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-lg',
+              item.daysLeft < 0 || item.daysLeft <= 14 ? 'bg-red-100' : 'bg-amber-100',
+            ]">
+              💉
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-semibold text-slate-800 truncate">{{ item.vac.vaccine_name }}</p>
+              <p class="text-xs text-slate-500">{{ item.petName }} · {{ item.vac.hospital_name }}</p>
+            </div>
+            <div class="text-right shrink-0">
+              <p :class="[
+                'text-xs font-bold',
+                item.daysLeft < 0 || item.daysLeft <= 14 ? 'text-red-600' : 'text-amber-600'
+              ]">
+                {{ item.daysLeft < 0 ? `${Math.abs(item.daysLeft)}일 초과` : `D-${item.daysLeft}` }}
+              </p>
+              <p class="text-[10px] text-slate-400">{{ formatDate(item.vac.next_due_date!) }}</p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -110,7 +179,8 @@ import { RouterLink, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
 import { usePetStore } from '@/stores/petStore'
 import { useScanStore } from '@/stores/scanStore'
-import type { Pet, HealthScan, BCSScore } from '@/types'
+import type { Pet, HealthScan, BCSScore, Vaccination, MedicalVisit } from '@/types'
+import { mockGetVaccinationsByPetId, mockGetMedicalVisitsByPetId } from '@/mocks/medicalRecords'
 import PetCard from '@/components/pets/PetCard.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseBadge from '@/components/ui/BaseBadge.vue'
@@ -124,6 +194,12 @@ const scanStore = useScanStore()
 /** 반려동물별 최신 스캔 */
 const latestScans = ref<Record<string, HealthScan>>({})
 
+/** 반려동물별 접종 이력 */
+const petVaccinations = ref<Record<string, Vaccination[]>>({})
+
+/** 반려동물별 진료 이력 */
+const petMedicalVisits = ref<Record<string, MedicalVisit[]>>({})
+
 const recentScans = computed(() => {
   return Object.entries(latestScans.value)
     .map(([petId, scan]) => ({
@@ -133,6 +209,73 @@ const recentScans = computed(() => {
     .filter(item => !!item.pet)
     .sort((a, b) => new Date(b.scan.scan_date).getTime() - new Date(a.scan.scan_date).getTime())
     .slice(0, 3)
+})
+
+/** 30일 이내 접종 예정 / 기간 초과 목록 */
+const upcomingVaccinations = computed(() => {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const result: { vac: Vaccination; petName: string; daysLeft: number }[] = []
+
+  for (const pet of petStore.pets) {
+    const vacs = petVaccinations.value[pet.id] ?? []
+    for (const vac of vacs) {
+      if (!vac.next_due_date) continue
+      const due = new Date(vac.next_due_date)
+      due.setHours(0, 0, 0, 0)
+      const diffDays = Math.ceil((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+      if (diffDays <= 30) {
+        result.push({ vac, petName: pet.name, daysLeft: diffDays })
+      }
+    }
+  }
+
+  return result.sort((a, b) => a.daysLeft - b.daysLeft)
+})
+
+/** 전체 알림 집계 */
+const totalAlerts = computed(() => {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  let urgent = 0
+  let warning = 0
+
+  for (const pet of petStore.pets) {
+    // 접종 알림
+    const vacs = petVaccinations.value[pet.id] ?? []
+    for (const vac of vacs) {
+      if (!vac.next_due_date) continue
+      const due = new Date(vac.next_due_date)
+      due.setHours(0, 0, 0, 0)
+      const diff = Math.ceil((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+      if (diff < 0 || diff <= 14) urgent++
+      else if (diff <= 30) warning++
+    }
+
+    // BCS 알림
+    const scan = latestScans.value[pet.id]
+    if (scan) {
+      if (scan.bcs_score <= 2 || scan.bcs_score >= 8) urgent++
+      else if (scan.bcs_score === 3 || scan.bcs_score === 7) warning++
+      if (scan.gait_score < 40) urgent++
+      else if (scan.gait_score < 60) warning++
+      if (scan.eye_clarity_score < 40) urgent++
+      else if (scan.eye_clarity_score < 60) warning++
+    }
+
+    // 재진 알림
+    const visits = petMedicalVisits.value[pet.id] ?? []
+    for (const v of visits) {
+      if (!v.follow_up_date) continue
+      const fu = new Date(v.follow_up_date)
+      fu.setHours(0, 0, 0, 0)
+      const diff = Math.ceil((fu.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+      if (diff < 0 && diff >= -7) urgent++
+      else if (diff >= 0 && diff <= 7) warning++
+    }
+  }
+
+  return { urgent, warning }
 })
 
 const quickActions = [
@@ -167,12 +310,13 @@ function formatDate(dateStr: string): string {
 onMounted(async () => {
   await petStore.fetchPets()
 
-  // 각 반려동물의 최신 스캔 로드
-  for (const pet of petStore.pets) {
+  await Promise.all(petStore.pets.map(async (pet) => {
     const scans = await scanStore.fetchScansByPetId(pet.id)
     if (scans.length > 0) {
       latestScans.value[pet.id] = scans[0]
     }
-  }
+    petVaccinations.value[pet.id] = mockGetVaccinationsByPetId(pet.id)
+    petMedicalVisits.value[pet.id] = mockGetMedicalVisitsByPetId(pet.id)
+  }))
 })
 </script>

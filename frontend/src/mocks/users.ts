@@ -28,6 +28,16 @@ export const MOCK_USERS: User[] = [
     updated_at: '2024-06-01T12:00:00Z',
   },
   {
+    id: 'user-insurance-001',
+    email: 'insurance@petid.kr',
+    name: '최보험',
+    phone: '02-2222-3333',
+    role: 'B2B_INSURANCE',
+    avatar_url: 'https://api.dicebear.com/7.x/thumbs/svg?seed=insurance001',
+    created_at: '2024-03-15T09:00:00Z',
+    updated_at: '2024-06-01T12:00:00Z',
+  },
+  {
     id: 'user-gov-001',
     email: 'gov@petid.kr',
     name: '이지자체',
@@ -43,6 +53,7 @@ export const MOCK_USERS: User[] = [
 export const DEMO_CREDENTIALS: Record<string, { password: string; userId: string }> = {
   'demo@petid.kr': { password: 'demo1234', userId: 'user-b2c-001' },
   'hospital@petid.kr': { password: 'hospital1234', userId: 'user-hospital-001' },
+  'insurance@petid.kr': { password: 'insurance1234', userId: 'user-insurance-001' },
   'gov@petid.kr': { password: 'gov1234', userId: 'user-gov-001' },
 }
 

@@ -36,7 +36,7 @@ export const usePetStore = defineStore('pet', () => {
 
     isLoading.value = true
     try {
-      await new Promise(resolve => setTimeout(resolve, 400))
+      await new Promise(resolve => setTimeout(resolve, 0))
       pets.value = mockGetPetsByOwner(authStore.user.id)
     } finally {
       isLoading.value = false
@@ -54,7 +54,7 @@ export const usePetStore = defineStore('pet', () => {
 
     isLoading.value = true
     try {
-      await new Promise(resolve => setTimeout(resolve, 300))
+      await new Promise(resolve => setTimeout(resolve, 0))
       const pet = mockGetPetById(petId)
       if (pet) {
         // 캐시에 추가
@@ -77,7 +77,7 @@ export const usePetStore = defineStore('pet', () => {
 
     isLoading.value = true
     try {
-      await new Promise(resolve => setTimeout(resolve, 600))
+      await new Promise(resolve => setTimeout(resolve, 0))
       const newPet = mockCreatePet(data, authStore.user.id)
       pets.value.push(newPet)
       return newPet
@@ -93,7 +93,7 @@ export const usePetStore = defineStore('pet', () => {
   async function updatePet(petId: string, data: UpdatePetRequest): Promise<Pet | null> {
     isLoading.value = true
     try {
-      await new Promise(resolve => setTimeout(resolve, 400))
+      await new Promise(resolve => setTimeout(resolve, 0))
       const updated = mockUpdatePet(petId, data)
       if (updated) {
         const idx = pets.value.findIndex(p => p.id === petId)

@@ -316,6 +316,77 @@ export interface CreateVaccinationRequest {
 }
 
 // ------------------------------------------------------------
+// 보험 청구 (Insurance Claims)
+// ------------------------------------------------------------
+
+/** 보험 청구 상태 */
+export type ClaimStatus = 'PENDING' | 'REVIEWING' | 'APPROVED' | 'REJECTED'
+
+/** 보험 청구 */
+export interface InsuranceClaim {
+  id: string
+  pet_id: string
+  owner_id: string
+  claim_date: string
+  treatment_date: string
+  hospital_name: string
+  diagnosis: string
+  treatment_notes?: string
+  claimed_amount: number
+  approved_amount?: number
+  status: ClaimStatus
+  risk_score?: number          // AI 산출 위험 점수 (0~100)
+  scan_ids?: string[]          // 근거로 사용된 스캔 ID
+  reviewer_notes?: string
+  created_at: string
+  updated_at: string
+}
+
+// ------------------------------------------------------------
+// 유기동물 신고 (Shelter Reports)
+// ------------------------------------------------------------
+
+/** 유기동물 신고 상태 */
+export type ShelterStatus = 'REPORTED' | 'SHELTERED' | 'ADOPTED' | 'EUTHANIZED' | 'RETURNED'
+
+/** 유기동물 신고 */
+export interface ShelterReport {
+  id: string
+  pet_id?: string              // 등록된 동물인 경우
+  report_date: string
+  location: string
+  species: 'DOG' | 'CAT' | 'OTHER'
+  breed?: string
+  description?: string
+  status: ShelterStatus
+  shelter_name?: string
+  contact: string
+  created_at: string
+  updated_at: string
+}
+
+// ------------------------------------------------------------
+// 동물 등록 신청 (Registration Applications)
+// ------------------------------------------------------------
+
+/** 등록 신청 상태 */
+export type ApplicationStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'ADDITIONAL_REQUIRED'
+
+/** 동물 등록 신청 */
+export interface RegistrationApplication {
+  id: string
+  pet_id: string
+  owner_id: string
+  applied_at: string
+  status: ApplicationStatus
+  district: string             // 관할 구
+  reviewer_notes?: string
+  reviewed_at?: string
+  created_at: string
+  updated_at: string
+}
+
+// ------------------------------------------------------------
 // RFID 토큰 (RFID Tokens)
 // ------------------------------------------------------------
 

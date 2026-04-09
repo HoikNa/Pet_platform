@@ -52,7 +52,7 @@ export const useAuthStore = defineStore('auth', () => {
     isLoading.value = true
     try {
       // 데모: API 호출 지연 시뮬레이션
-      await new Promise(resolve => setTimeout(resolve, 800))
+      await new Promise(resolve => setTimeout(resolve, 0))
 
       const result = mockLogin(email, password)
       if (!result) return false

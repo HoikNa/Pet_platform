@@ -147,23 +147,59 @@ async function handleLogout(): Promise<void> {
   router.push('/login')
 }
 
-// 사이드바 아이콘 컴포넌트들
-const DashboardIcon = defineComponent({
-  render: () => h('svg', { fill: 'none', stroke: 'currentColor', viewBox: '0 0 24 24' }, [
-    h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-width': '2', d: 'M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z' }),
-  ])
-})
+// ---- 아이콘 컴포넌트 ----
+function svgIcon(d: string) {
+  return defineComponent({
+    render: () => h('svg', { fill: 'none', stroke: 'currentColor', viewBox: '0 0 24 24' }, [
+      h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-width': '2', d }),
+    ]),
+  })
+}
 
-const PetsIcon = defineComponent({
-  render: () => h('svg', { fill: 'none', stroke: 'currentColor', viewBox: '0 0 24 24' }, [
-    h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-width': '2', d: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' }),
-  ])
-})
+const Icons = {
+  dashboard: svgIcon('M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z'),
+  pets: svgIcon('M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'),
+  calendar: svgIcon('M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'),
+  syringe: svgIcon('M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z'),
+  claim: svgIcon('M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'),
+  chart: svgIcon('M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z'),
+  registration: svgIcon('M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z'),
+  shelter: svgIcon('M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6'),
+}
 
-const navItems = [
-  { to: '/admin/dashboard', label: '대시보드', icon: DashboardIcon },
-  { to: '/admin/pets', label: '환축 관리', icon: PetsIcon },
-]
+// ---- 역할별 사이드바 메뉴 ----
+const navItems = computed(() => {
+  const role = user.value?.role
+  if (role === 'B2B_HOSPITAL') {
+    return [
+      { to: '/admin/hospital/dashboard', label: '진료 대시보드', icon: Icons.dashboard },
+      { to: '/admin/hospital/appointments', label: '예약/진료 관리', icon: Icons.calendar },
+      { to: '/admin/hospital/vaccinations', label: '접종 관리', icon: Icons.syringe },
+      { to: '/admin/pets', label: '환축 EMR', icon: Icons.pets },
+    ]
+  }
+  if (role === 'B2B_INSURANCE') {
+    return [
+      { to: '/admin/insurance/dashboard', label: '보험 대시보드', icon: Icons.dashboard },
+      { to: '/admin/insurance/claims', label: '청구 관리', icon: Icons.claim },
+      { to: '/admin/insurance/analytics', label: '리스크 분석', icon: Icons.chart },
+      { to: '/admin/pets', label: '환축 조회', icon: Icons.pets },
+    ]
+  }
+  if (role === 'B2G') {
+    return [
+      { to: '/admin/gov/dashboard', label: '동물등록 대시보드', icon: Icons.dashboard },
+      { to: '/admin/gov/registrations', label: '등록 신청 관리', icon: Icons.registration },
+      { to: '/admin/gov/shelter', label: '유기동물 관리', icon: Icons.shelter },
+      { to: '/admin/gov/statistics', label: '지역 통계', icon: Icons.chart },
+    ]
+  }
+  // ADMIN (슈퍼관리자)
+  return [
+    { to: '/admin/dashboard', label: '전체 대시보드', icon: Icons.dashboard },
+    { to: '/admin/pets', label: '환축 관리', icon: Icons.pets },
+  ]
+})
 </script>
 
 <style scoped>
