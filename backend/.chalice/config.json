@@ -10,9 +10,20 @@
     },
     "prod": {
       "api_gateway_stage": "api",
+      "lambda_memory_size": 512,
+      "lambda_timeout": 30,
       "environment_variables": {
-        "STAGE": "prod"
-      }
+        "STAGE": "prod",
+        "DATABASE_URL": "postgresql+psycopg2://postgres:670890as!@database-1.cdyk0iueaw40.ap-northeast-2.rds.amazonaws.com:5432/petid_db",
+        "JWT_SECRET_KEY": "petid-prod-secret-key-2026-change-this",
+        "JWT_ALGORITHM": "HS256",
+        "JWT_EXPIRE_MINUTES": "10080",
+        "S3_BUCKET_NAME": "pet-id-uploads-prod",
+        "SQS_QUEUE_URL": "https://sqs.ap-northeast-2.amazonaws.com/563332535352/pet-scan-queue",
+        "PRESIGNED_URL_EXPIRES": "3600"
+      },
+      "iam_policy_file": "prod_policy.json",
+      "autogen_policy": false
     }
   }
 }
