@@ -14,7 +14,7 @@ from chalicelib.services.s3_service import generate_presigned_url
 media_bp = Blueprint(__name__)
 
 
-@media_bp.route("/media/presigned-url", methods=["POST"])
+@media_bp.route("/media/presigned-url", methods=["POST"], cors=True)
 @require_auth
 def get_presigned_url():
     """

@@ -38,7 +38,7 @@ def _serialize(pet: Pet) -> dict:
     }
 
 
-@pets_bp.route("/pets", methods=["GET"])
+@pets_bp.route("/pets", methods=["GET"], cors=True)
 @require_auth
 def list_pets():
     """
@@ -72,7 +72,7 @@ def list_pets():
         )
 
 
-@pets_bp.route("/pets", methods=["POST"])
+@pets_bp.route("/pets", methods=["POST"], cors=True)
 @require_auth
 def create_pet():
     """
@@ -112,7 +112,7 @@ def create_pet():
         return err_response(e.error_code, e.message, status_code=400)
 
 
-@pets_bp.route("/pets/{pet_id}", methods=["GET"])
+@pets_bp.route("/pets/{pet_id}", methods=["GET"], cors=True)
 @require_auth
 @require_pet_ownership
 def get_pet(pet_id):
@@ -124,7 +124,7 @@ def get_pet(pet_id):
         return err_response(e.error_code, e.message, status_code=404)
 
 
-@pets_bp.route("/pets/{pet_id}", methods=["PATCH"])
+@pets_bp.route("/pets/{pet_id}", methods=["PATCH"], cors=True)
 @require_auth
 @require_pet_ownership
 def update_pet(pet_id):

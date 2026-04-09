@@ -86,7 +86,7 @@ _VISIT_UPDATABLE = {
 }
 
 
-@medical_bp.route("/pets/{pet_id}/medical-visits", methods=["GET"])
+@medical_bp.route("/pets/{pet_id}/medical-visits", methods=["GET"], cors=True)
 @require_auth
 @require_pet_ownership
 def list_visits(pet_id):
@@ -100,7 +100,7 @@ def list_visits(pet_id):
         return ok([_visit_dict(v) for v in result["data"]], meta=result["meta"])
 
 
-@medical_bp.route("/pets/{pet_id}/medical-visits", methods=["POST"])
+@medical_bp.route("/pets/{pet_id}/medical-visits", methods=["POST"], cors=True)
 @require_auth
 @require_pet_ownership
 def create_visit(pet_id):
@@ -134,7 +134,7 @@ def create_visit(pet_id):
         return err_response(e.error_code, e.message, status_code=400)
 
 
-@medical_bp.route("/pets/{pet_id}/medical-visits/{visit_id}", methods=["GET"])
+@medical_bp.route("/pets/{pet_id}/medical-visits/{visit_id}", methods=["GET"], cors=True)
 @require_auth
 @require_pet_ownership
 def get_visit(pet_id, visit_id):
@@ -146,7 +146,7 @@ def get_visit(pet_id, visit_id):
         return err_response(e.error_code, e.message, status_code=404)
 
 
-@medical_bp.route("/pets/{pet_id}/medical-visits/{visit_id}", methods=["PATCH"])
+@medical_bp.route("/pets/{pet_id}/medical-visits/{visit_id}", methods=["PATCH"], cors=True)
 @require_auth
 @require_pet_ownership
 def update_visit(pet_id, visit_id):
@@ -166,7 +166,7 @@ def update_visit(pet_id, visit_id):
         return err_response(e.error_code, e.message, status_code=400)
 
 
-@medical_bp.route("/pets/{pet_id}/medical-visits/{visit_id}", methods=["DELETE"])
+@medical_bp.route("/pets/{pet_id}/medical-visits/{visit_id}", methods=["DELETE"], cors=True)
 @require_auth
 @require_pet_ownership
 def delete_visit(pet_id, visit_id):
@@ -186,7 +186,7 @@ def delete_visit(pet_id, visit_id):
 _RX_REQUIRED = {"prescribed_date", "hospital_name", "drug_name", "dosage", "frequency", "duration_days"}
 
 
-@medical_bp.route("/pets/{pet_id}/prescriptions", methods=["GET"])
+@medical_bp.route("/pets/{pet_id}/prescriptions", methods=["GET"], cors=True)
 @require_auth
 @require_pet_ownership
 def list_prescriptions(pet_id):
@@ -200,7 +200,7 @@ def list_prescriptions(pet_id):
         return ok([_rx_dict(p) for p in result["data"]], meta=result["meta"])
 
 
-@medical_bp.route("/pets/{pet_id}/prescriptions", methods=["POST"])
+@medical_bp.route("/pets/{pet_id}/prescriptions", methods=["POST"], cors=True)
 @require_auth
 @require_pet_ownership
 def create_prescription(pet_id):
@@ -235,7 +235,7 @@ def create_prescription(pet_id):
         return err_response(e.error_code, e.message, status_code=400)
 
 
-@medical_bp.route("/pets/{pet_id}/prescriptions/{prescription_id}", methods=["DELETE"])
+@medical_bp.route("/pets/{pet_id}/prescriptions/{prescription_id}", methods=["DELETE"], cors=True)
 @require_auth
 @require_pet_ownership
 def delete_prescription(pet_id, prescription_id):
@@ -255,7 +255,7 @@ def delete_prescription(pet_id, prescription_id):
 _VAX_REQUIRED = {"vaccine_name", "vaccination_type", "vaccinated_date", "hospital_name"}
 
 
-@medical_bp.route("/pets/{pet_id}/vaccinations", methods=["GET"])
+@medical_bp.route("/pets/{pet_id}/vaccinations", methods=["GET"], cors=True)
 @require_auth
 @require_pet_ownership
 def list_vaccinations(pet_id):
@@ -269,7 +269,7 @@ def list_vaccinations(pet_id):
         return ok([_vax_dict(v) for v in result["data"]], meta=result["meta"])
 
 
-@medical_bp.route("/pets/{pet_id}/vaccinations", methods=["POST"])
+@medical_bp.route("/pets/{pet_id}/vaccinations", methods=["POST"], cors=True)
 @require_auth
 @require_pet_ownership
 def create_vaccination(pet_id):
@@ -302,7 +302,7 @@ def create_vaccination(pet_id):
         return err_response(e.error_code, e.message, status_code=400)
 
 
-@medical_bp.route("/pets/{pet_id}/vaccinations/{vaccination_id}", methods=["DELETE"])
+@medical_bp.route("/pets/{pet_id}/vaccinations/{vaccination_id}", methods=["DELETE"], cors=True)
 @require_auth
 @require_pet_ownership
 def delete_vaccination(pet_id, vaccination_id):

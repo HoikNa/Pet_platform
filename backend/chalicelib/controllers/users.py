@@ -30,7 +30,7 @@ def _serialize(user: User) -> dict:
     }
 
 
-@users_bp.route("/users/me", methods=["GET"])
+@users_bp.route("/users/me", methods=["GET"], cors=True)
 @require_auth
 def get_me():
     user_id = users_bp.current_app.current_request.context["user"]["user_id"]
@@ -42,7 +42,7 @@ def get_me():
         return err_response(e.error_code, e.message, status_code=404)
 
 
-@users_bp.route("/users/me", methods=["PATCH"])
+@users_bp.route("/users/me", methods=["PATCH"], cors=True)
 @require_auth
 def update_me():
     request = users_bp.current_app.current_request

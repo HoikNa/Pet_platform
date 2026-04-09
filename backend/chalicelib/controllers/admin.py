@@ -42,7 +42,7 @@ def _serialize_pet(pet: Pet) -> dict:
     }
 
 
-@admin_bp.route("/organizations/{org_id}/pets", methods=["GET"])
+@admin_bp.route("/organizations/{org_id}/pets", methods=["GET"], cors=True)
 @require_auth
 @require_role(_B2B_ROLES)
 @require_org_access

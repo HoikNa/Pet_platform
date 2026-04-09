@@ -13,7 +13,7 @@ from chalicelib.services.auth_service import blacklist_token, social_login
 auth_bp = Blueprint(__name__)
 
 
-@auth_bp.route("/auth/login", methods=["POST"])
+@auth_bp.route("/auth/login", methods=["POST"], cors=True)
 def login():
     """
     Body: { "provider": "kakao", "social_token": "<kakao_access_token>" }
@@ -35,7 +35,7 @@ def login():
         return err_response(e.error_code, e.message, status_code=400)
 
 
-@auth_bp.route("/auth/logout", methods=["POST"])
+@auth_bp.route("/auth/logout", methods=["POST"], cors=True)
 @require_auth
 def logout():
     """

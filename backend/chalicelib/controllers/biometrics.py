@@ -23,7 +23,7 @@ from chalicelib.services.sqs_service import push_biometric_job
 biometrics_bp = Blueprint(__name__)
 
 
-@biometrics_bp.route("/pets/{pet_id}/biometrics", methods=["POST"])
+@biometrics_bp.route("/pets/{pet_id}/biometrics", methods=["POST"], cors=True)
 @require_auth
 @require_pet_ownership
 def register_biometric(pet_id):

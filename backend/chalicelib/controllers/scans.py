@@ -38,7 +38,7 @@ def _serialize(scan: HealthScan) -> dict:
     }
 
 
-@scans_bp.route("/pets/{pet_id}/scans", methods=["GET"])
+@scans_bp.route("/pets/{pet_id}/scans", methods=["GET"], cors=True)
 @require_auth
 @require_pet_ownership
 def list_scans(pet_id):
@@ -59,7 +59,7 @@ def list_scans(pet_id):
         )
 
 
-@scans_bp.route("/pets/{pet_id}/scans", methods=["POST"])
+@scans_bp.route("/pets/{pet_id}/scans", methods=["POST"], cors=True)
 @require_auth
 @require_pet_ownership
 def create_scan(pet_id):
@@ -129,7 +129,7 @@ def _get_scan_detail(scan_id: str, user: dict):
         return err_response(e.error_code, e.message, status_code=404)
 
 
-@scans_bp.route("/scans/{scan_id}", methods=["GET"])
+@scans_bp.route("/scans/{scan_id}", methods=["GET"], cors=True)
 @require_auth
 def get_scan(scan_id):
     """API Spec §3.4 — 특정 스캔 상세 리포트."""
@@ -137,7 +137,7 @@ def get_scan(scan_id):
     return _get_scan_detail(scan_id, user)
 
 
-@scans_bp.route("/scan/report/{scan_id}", methods=["GET"])
+@scans_bp.route("/scan/report/{scan_id}", methods=["GET"], cors=True)
 @require_auth
 def get_scan_report(scan_id):
     """Backend-dev-instruction §6 경로 alias — /scans/{scan_id} 와 동일."""
