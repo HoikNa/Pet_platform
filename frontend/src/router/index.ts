@@ -43,7 +43,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/pets',
     name: 'PetList',
-    component: () => import('@/pages/DashboardPage.vue'), // 대시보드와 동일
+    component: () => import('@/pages/pets/PetListPage.vue'),
     meta: { requiresAuth: true, requiredRoles: ['B2C'], layout: 'mobile', title: '내 반려동물' },
   },
   {
