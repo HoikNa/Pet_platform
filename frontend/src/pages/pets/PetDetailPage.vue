@@ -1,4 +1,5 @@
 <template>
+  <div>
   <div v-if="pet" class="flex flex-col">
     <!-- 히어로 이미지 -->
     <div class="relative h-56 bg-slate-100">
@@ -416,6 +417,7 @@
 
   <!-- 접종 기록 추가 모달 -->
   <AddVaccinationModal v-model="showAddVaccination" @submit="handleAddVaccination" />
+  </div>
 </template>
 
 <script setup lang="ts">
