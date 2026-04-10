@@ -1,4 +1,5 @@
 <template>
+  <div>
   <div class="flex flex-col gap-6 pb-6">
       <!-- 프로필 헤더 -->
       <div class="flex flex-col items-center gap-3 pt-4">
@@ -139,6 +140,7 @@
         <BaseButton @click="showPrivacy = false">확인</BaseButton>
       </template>
     </BaseModal>
+  </div>
 </template>
 
 <script setup lang="ts">
