@@ -2,7 +2,8 @@
 
 ## 1. 스택 및 폴더 구조
 - **스택:** AWS Chalice + SQLModel (Pydantic v2) + PostgreSQL + Alembic
-- **배포:** API Lambda + SQS Worker Lambda + Lambda Layers (무거운 의존성 분리)
+- **배포:** API Lambda + SQS Worker Lambda (AWS Chalice `chalice deploy --stage prod`)
+- **배포 현황:** prod 스테이지 배포 완료. API Gateway URL: `https://trjmyzd347.execute-api.ap-northeast-2.amazonaws.com/api/`
 
 ```
 /app.py              # Chalice 진입점 — Router 위임만 담당, 로직 없음
@@ -157,14 +158,15 @@ def process_scan(event):
 ## 9. 환경변수 (`chalicelib/core/config.py`)
 
 ```
-DATABASE_URL      PostgreSQL 연결 문자열
+DATABASE_URL      PostgreSQL 연결 문자열 (prod: RDS petid_db)
 JWT_SECRET_KEY    JWT 서명 키
-S3_BUCKET_NAME    미디어 버킷명
-SQS_QUEUE_URL     분석 작업 큐 URL
-FCM_SERVER_KEY    푸시 알림 키
-AWS_REGION        배포 리전
+S3_BUCKET_NAME    미디어 버킷명 (prod: pet-id-uploads-prod)
+SQS_QUEUE_URL     분석 작업 큐 URL (prod: pet-scan-queue)
+STAGE             dev | prod
+PRESIGNED_URL_EXPIRES  3600 (초)
 ```
 
 `.chalice/config.json`의 `environment_variables`로 환경별 주입.
-Lambda Layer: `sqlmodel`, `psycopg2-binary` → DB Layer / `opencv`, `torch` 계열 → AI Layer.
-Alembic: CI/CD 파이프라인 컨테이너에서 독립 실행 (Lambda 무관).
+**주의:** `AWS_REGION`은 Lambda 예약 환경변수라 config.json에서 설정 불가. SDK 기본값 사용.
+Alembic: `DATABASE_URL` 환경변수로 RDS 직접 연결 후 `alembic upgrade head` 실행.
+CORS: 모든 라우트에 `cors=True` 필수 (API Gateway OPTIONS 자동 생성).

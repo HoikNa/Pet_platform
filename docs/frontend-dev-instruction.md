@@ -5,6 +5,8 @@
 - **경로 alias:** `@/` → `frontend/src/`
 - **레이아웃:** B2C = `layouts/MobileLayout.vue` (max-w-mobile, 하단 nav), B2B/B2G = `layouts/AdminLayout.vue` (좌측 사이드바)
 - **페이지 위치:** `pages/`, 라우터: `router/index.ts`
+- **배포:** Vercel — https://frontend-eta-eosin.vercel.app (`npx vercel --prod`)
+- **현재 상태:** 3.1단계 완료 (Mock 데이터 동작). 3.2단계(실제 API 연동) 예정.
 
 ---
 
@@ -21,7 +23,11 @@
 
 **공통 레이아웃 컴포넌트 (`components/common/`)**
 - `AppHeader` — `title`, `showBack`, `showNotification`, `notificationCount` prop. 알림 뱃지 자동 표시.
-- `AppNavigation` — B2C 하단 탭 바 (홈/스캔/리포트/프로필). 라우터 연동.
+- `AppNavigation` — B2C 하단 탭 바 (홈/반려동물/스캔/리포트/프로필). 라우터 연동.
+
+**⚠️ Fragment 금지 규칙:** `MobileLayout`의 `<Transition mode="out-in">`은 단일 루트 요소만 허용.
+페이지 내 `BaseModal` 등 Teleport 컴포넌트가 있으면 전체 템플릿을 하나의 `<div>`로 감쌀 것.
+위반 시 페이지 전환 후 하단 네비게이션 클릭 불가 버그 발생.
 
 ---
 
@@ -116,10 +122,20 @@ Service 파일 패턴 (`services/petService.ts` 등): 모두 주석 처리된 AP
 
 **주요 B2C 경로:**
 ```
-/dashboard, /pets, /pets/:id, /pets/register
-/scan, /scan/camera, /scan/voice, /scan/loading, /scan/report/:id
-/reports, /profile
+/dashboard          홈 대시보드
+/pets               반려동물 목록 (PetListPage — DashboardPage 재사용 금지)
+/pets/:id           반려동물 상세
+/pets/register      반려동물 등록
+/scan               스캔 옵션
+/scan/camera        카메라 촬영 (layout: none)
+/scan/voice         음성 녹음 (layout: none)
+/scan/loading       AI 분석 대기 (layout: none)
+/scan/report/:id    스캔 리포트
+/reports            전체 기록
+/profile            프로필/설정
 ```
+
+**⚠️ 라우트 중복 금지:** 같은 컴포넌트를 다른 경로에 재사용하면 Transition이 동작하지 않아 탭 클릭 무반응 버그 발생. 각 경로는 반드시 별도 페이지 컴포넌트 사용.
 
 ---
 
